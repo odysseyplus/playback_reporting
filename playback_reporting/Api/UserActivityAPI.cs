@@ -205,10 +205,36 @@ namespace playback_reporting.Api
         public string end_date { get; set; }
     }
 
+    // http://localhost:8096/emby/user_usage_stats/TvShowsReportWithItemId
+    [Route("/user_usage_stats/TvShowsReport", "GET", Summary = "Gets TV Shows counts")]
+    [Authenticated(Roles = "admin")]
+    public class GetTvShowsReportWithItemId : IReturn<Object>
+    {
+        [ApiMember(Name = "user_id", Description = "User Id", IsRequired = false, DataType = "string", ParameterType = "query", Verb = "GET")]
+        public string user_id { get; set; }
+        [ApiMember(Name = "days", Description = "Number of Days", IsRequired = false, DataType = "int", ParameterType = "query", Verb = "GET")]
+        public int days { get; set; }
+        [ApiMember(Name = "end_date", Description = "End date of the report in yyyy-MM-dd format", IsRequired = false, DataType = "string", ParameterType = "query", Verb = "GET")]
+        public string end_date { get; set; }
+    }
+
     // http://localhost:8096/emby/user_usage_stats/MoviesReport
     [Route("/user_usage_stats/MoviesReport", "GET", Summary = "Gets Movies counts")]
     [Authenticated(Roles = "admin")]
     public class GetMoviesReport : IReturn<Object>
+    {
+        [ApiMember(Name = "user_id", Description = "User Id", IsRequired = false, DataType = "string", ParameterType = "query", Verb = "GET")]
+        public string user_id { get; set; }
+        [ApiMember(Name = "days", Description = "Number of Days", IsRequired = false, DataType = "int", ParameterType = "query", Verb = "GET")]
+        public int days { get; set; }
+        [ApiMember(Name = "end_date", Description = "End date of the report in yyyy-MM-dd format", IsRequired = false, DataType = "string", ParameterType = "query", Verb = "GET")]
+        public string end_date { get; set; }
+    }
+
+    // http://localhost:8096/emby/user_usage_stats/MoviesReportWithItemId
+    [Route("/user_usage_stats/MoviesReportWithItemId", "GET", Summary = "Gets Movies counts")]
+    [Authenticated(Roles = "admin")]
+    public class GetMoviesReportWithItemId : IReturn<Object>
     {
         [ApiMember(Name = "user_id", Description = "User Id", IsRequired = false, DataType = "string", ParameterType = "query", Verb = "GET")]
         public string user_id { get; set; }
@@ -1008,6 +1034,29 @@ namespace playback_reporting.Api
             return report;
         }
 
+        public object Get(GetTvShowsReportWithItemId request)
+        {
+            DateTime end_date;
+            if (string.IsNullOrEmpty(request.end_date))
+            {
+                end_date = DateTime.Now;
+            }
+            else
+            {
+                _logger.Info("End_Date: " + request.end_date);
+                end_date = DateTime.ParseExact(request.end_date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            }
+
+            ReportPlaybackOptions config = _config.GetReportPlaybackOptions();
+            List<Dictionary<string, object>> report = repository.GetTvShowReportWithItemId(
+                request.user_id,
+                request.days,
+                end_date,
+                config);
+
+            return report;
+        }
+
         public object Get(GetMoviesReport request)
         {
             DateTime end_date;
@@ -1025,6 +1074,29 @@ namespace playback_reporting.Api
             List<Dictionary<string, object>> report = repository.GetMoviesReport(
                     request.user_id, 
                     request.days, 
+                    end_date,
+                    config);
+
+            return report;
+        }
+
+        public object Get(GetMoviesReportWithItemId request)
+        {
+            DateTime end_date;
+            if (string.IsNullOrEmpty(request.end_date))
+            {
+                end_date = DateTime.Now;
+            }
+            else
+            {
+                _logger.Info("End_Date: " + request.end_date);
+                end_date = DateTime.ParseExact(request.end_date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            }
+
+            ReportPlaybackOptions config = _config.GetReportPlaybackOptions();
+            List<Dictionary<string, object>> report = repository.GetMoviesReportWithItemId(
+                    request.user_id,
+                    request.days,
                     end_date,
                     config);
 

@@ -859,6 +859,63 @@ namespace playback_reporting.Data
             return report;
         }
 
+        public List<Dictionary<string, object>> GetTvShowReportWithItemId(string user_id, int days, DateTime end_date, ReportPlaybackOptions config)
+        {
+            List<Dictionary<string, object>> report = new List<Dictionary<string, object>>();
+
+            DateTime start_date = end_date.Subtract(new TimeSpan(days, 0, 0, 0));
+            Dictionary<String, Dictionary<string, int>> usage = new Dictionary<String, Dictionary<string, int>>();
+
+            string sql = "";
+            sql += "SELECT substr(ItemId,0, instr(ItemId, ' - ')) AS name, ";
+            sql += "COUNT(1) AS play_count, ";
+            sql += "SUM(PlayDuration - PauseDuration) AS total_duarion ";
+            sql += "FROM PlaybackActivity ";
+            sql += "WHERE ItemType = 'Episode' ";
+            sql += "AND DateCreated >= @start_date AND DateCreated <= @end_date ";
+            sql += "AND UserId not IN (select UserId from UserList) ";
+
+            if (!string.IsNullOrEmpty(user_id))
+            {
+                sql += "AND UserId = @user_id ";
+            }
+
+            if (config.IgnoreSmallerThan > 0)
+            {
+                sql += "AND (PlayDuration - PauseDuration) > " + config.IgnoreSmallerThan + " ";
+            }
+
+            sql += "GROUP BY name";
+
+            using (lock_manager.getLockItem().Read())
+            {
+                using (var connection = CreateConnection(true))
+                {
+                    using (var statement = connection.PrepareStatement(sql))
+                    {
+                        statement.TryBind("@start_date", start_date.ToString("yyyy-MM-dd 00:00:00"));
+                        statement.TryBind("@end_date", end_date.ToString("yyyy-MM-dd 23:59:59"));
+                        statement.TryBind("@user_id", user_id);
+
+                        foreach (var row in statement.ExecuteQuery())
+                        {
+                            string item_label = row.GetString(0);
+                            int action_count = row.GetInt(1);
+                            int seconds_sum = row.GetInt(2);
+
+                            Dictionary<string, object> row_data = new Dictionary<string, object>();
+                            row_data.Add("label", item_label);
+                            row_data.Add("count", action_count);
+                            row_data.Add("time", seconds_sum);
+                            report.Add(row_data);
+                        }
+                    }
+                }
+            }
+
+            return report;
+        }
+
         public List<Dictionary<string, object>> GetMoviesReport(string user_id, int days, DateTime end_date, ReportPlaybackOptions config)
         {
             List<Dictionary<string, object>> report = new List<Dictionary<string, object>>();
@@ -868,6 +925,63 @@ namespace playback_reporting.Data
 
             string sql = "";
             sql += "SELECT ItemName AS name, ";
+            sql += "COUNT(1) AS play_count, ";
+            sql += "SUM(PlayDuration - PauseDuration) AS total_duarion ";
+            sql += "FROM PlaybackActivity ";
+            sql += "WHERE ItemType = 'Movie' ";
+            sql += "AND DateCreated >= @start_date AND DateCreated <= @end_date ";
+            sql += "AND UserId not IN (select UserId from UserList) ";
+
+            if (!string.IsNullOrEmpty(user_id))
+            {
+                sql += "AND UserId = @user_id ";
+            }
+
+            if (config.IgnoreSmallerThan > 0)
+            {
+                sql += "AND (PlayDuration - PauseDuration) > " + config.IgnoreSmallerThan + " ";
+            }
+
+            sql += "GROUP BY name";
+
+            using (lock_manager.getLockItem().Read())
+            {
+                using (var connection = CreateConnection(true))
+                {
+                    using (var statement = connection.PrepareStatement(sql))
+                    {
+                        statement.TryBind("@start_date", start_date.ToString("yyyy-MM-dd 00:00:00"));
+                        statement.TryBind("@end_date", end_date.ToString("yyyy-MM-dd 23:59:59"));
+                        statement.TryBind("@user_id", user_id);
+
+                        foreach (var row in statement.ExecuteQuery())
+                        {
+                            string item_label = row.GetString(0);
+                            int action_count = row.GetInt(1);
+                            int seconds_sum = row.GetInt(2);
+
+                            Dictionary<string, object> row_data = new Dictionary<string, object>();
+                            row_data.Add("label", item_label);
+                            row_data.Add("count", action_count);
+                            row_data.Add("time", seconds_sum);
+                            report.Add(row_data);
+                        }
+                    }
+                }
+            }
+
+            return report;
+        }
+
+        public List<Dictionary<string, object>> GetMoviesReportWithItemId(string user_id, int days, DateTime end_date, ReportPlaybackOptions config)
+        {
+            List<Dictionary<string, object>> report = new List<Dictionary<string, object>>();
+
+            DateTime start_date = end_date.Subtract(new TimeSpan(days, 0, 0, 0));
+            Dictionary<String, Dictionary<string, int>> usage = new Dictionary<String, Dictionary<string, int>>();
+
+            string sql = "";
+            sql += "SELECT ItemId AS name, ";
             sql += "COUNT(1) AS play_count, ";
             sql += "SUM(PlayDuration - PauseDuration) AS total_duarion ";
             sql += "FROM PlaybackActivity ";
