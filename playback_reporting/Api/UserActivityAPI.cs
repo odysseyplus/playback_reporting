@@ -206,7 +206,7 @@ namespace playback_reporting.Api
     }
 
     // http://localhost:8096/emby/user_usage_stats/TvShowsReportWithItemId
-    [Route("/user_usage_stats/TvShowsReport", "GET", Summary = "Gets TV Shows counts")]
+    [Route("/user_usage_stats/TvShowsReportWithItemId", "GET", Summary = "Gets TV Shows counts")]
     [Authenticated(Roles = "admin")]
     public class GetTvShowsReportWithItemId : IReturn<Object>
     {

@@ -225,6 +225,10 @@ namespace playback_reporting
             string deviceName = session.DeviceName;
             string clientName = session.Client;
             string session_playing_id = session.NowPlayingItem.Id;
+            if (session.NowPlayingItem.Type == "Episode")
+            {
+                session_playing_id = session.NowPlayingItem.SeriesId;
+            }
 
             string key = deviceId + "-" + userId + "-" + session_playing_id;
 
