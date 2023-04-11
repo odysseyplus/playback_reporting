@@ -38,7 +38,7 @@ namespace playback_reporting.Data
 
         public ActivityRepository(ILogger logger, IServerApplicationPaths appPaths, IFileSystem fileSystem) : base(logger)
         {
-            DbFilePath = Path.Combine(appPaths.DataPath, "playback_reporting.db");
+            DbFilePath = Path.Combine(appPaths.DataPath, "playback_reporting_odyssey.db");
             FileSystem = fileSystem;
             _logger = logger;
         }
