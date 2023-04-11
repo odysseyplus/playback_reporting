@@ -38,7 +38,7 @@ namespace playback_reporting.Data
 
         public ActivityRepository(ILogger logger, IServerApplicationPaths appPaths, IFileSystem fileSystem) : base(logger)
         {
-            DbFilePath = Path.Combine(appPaths.DataPath, "playback_reporting_odyssey.db");
+            DbFilePath = Path.Combine(appPaths.DataPath, "playback_reporting.db");
             FileSystem = fileSystem;
             _logger = logger;
         }
@@ -867,7 +867,7 @@ namespace playback_reporting.Data
             Dictionary<String, Dictionary<string, int>> usage = new Dictionary<String, Dictionary<string, int>>();
 
             string sql = "";
-            sql += "SELECT substr(ItemId,0, instr(ItemId, ' - ')) AS name, ";
+            sql += "SELECT ItemId AS name, ";
             sql += "COUNT(1) AS play_count, ";
             sql += "SUM(PlayDuration - PauseDuration) AS total_duarion ";
             sql += "FROM PlaybackActivity ";
